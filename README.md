@@ -1,4 +1,4 @@
-# arduino-timer
+# arduino-timer-api
 Cross-platform Arduino timer API.
 
 Supported platforms:
@@ -11,7 +11,7 @@ Supported platforms:
 git clone https://github.com/1i7/arduino-timer-api.git
 cp -r ./arduino-timer-api/timer-api ~/Arduino/libraries/
 ```
-Перезапустить среду Arduino. Примеры должды появиться в меню _File/Examples/timer-api_
+Перезапустить среду Arduino. Примеры должны появиться в меню _File/Examples/timer-api_
 
 # Запуск таймера
 
@@ -196,7 +196,7 @@ void timer_init_ISR_10Hz(int timer);
 void timer_init_ISR_5Hz(int timer);
 ~~~
 
-_Замечание_
+_Замечание_  
 Варианты вызовов timer_init_ISR_2Hz (2Гц, период 500мс) и timer_init_ISR_1Hz (1Гц, период 1с) пока отключены, т.к. при 16-битных режимах таймеров PIC32MX 80МГц комбинация делитель частоты (prescaler - максимальный вариант 1/256) + поправка периода (adjustment - максимальный вариант 2^16=65536) дают минимальную частоту 5Гц (период - 200мс):  
 80000000/256/65536 = 4.8Гц
 
