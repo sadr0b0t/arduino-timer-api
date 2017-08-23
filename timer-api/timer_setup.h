@@ -1,0 +1,170 @@
+#ifndef TIMER_SETUP_H
+#define TIMER_SETUP_H
+
+// Define timer ids
+extern const int TIMER1;
+extern const int TIMER3;
+extern const int TIMER4;
+extern const int TIMER5;
+
+extern const int TIMER_DEFAULT;
+
+// Define timer prescaler options
+extern const int TIMER_PRESCALER_1_1;
+extern const int TIMER_PRESCALER_1_2;
+extern const int TIMER_PRESCALER_1_4;
+extern const int TIMER_PRESCALER_1_8;
+extern const int TIMER_PRESCALER_1_16;
+extern const int TIMER_PRESCALER_1_32;
+extern const int TIMER_PRESCALER_1_64;
+extern const int TIMER_PRESCALER_1_256;
+extern const int TIMER_PRESCALER_1_1024;
+
+// Typical freqs
+
+/**
+ * freq: 100KHz = 100000 ops/sec
+ * period: 1sec/100000 = 10us
+ */
+void timer_init_ISR_100KHz(int timer);
+
+/**
+ * freq: 50KHz = 50000 ops/sec
+ * period: 1sec/50000 = 20us
+ */
+void timer_init_ISR_50KHz(int timer);
+
+/**
+ * freq: 20KHz = 20000 ops/sec
+ * period: 1sec/20000 = 50us
+ */
+void timer_init_ISR_20KHz(int timer);
+
+
+/**
+ * freq: 10KHz = 10000 ops/sec
+ * period: 1sec/10000 = 100us
+ */
+void timer_init_ISR_10KHz(int timer);
+
+/**
+ * freq: 5KHz = 5000 ops/sec
+ * period: 1sec/5000 = 200us
+ */
+void timer_init_ISR_5KHz(int timer);
+
+/**
+ * freq: 2KHz = 2000 ops/sec
+ * period: 1sec/2000 = 500us
+ */
+void timer_init_ISR_2KHz(int timer);
+
+/**
+ * freq: 1KHz = 1000 ops/sec
+ * period: 1sec/1000 = 1ms
+ */
+void timer_init_ISR_1KHz(int timer);
+
+/**
+ * freq: 100Hz = 100 ops/sec
+ * period: 1sec/100 = 10ms
+ */
+void timer_init_ISR_100Hz(int timer);
+
+/**
+ * freq: 50Hz = 50 ops/sec
+ * period: 1sec/50 = 20ms
+ */
+void timer_init_ISR_50Hz(int timer);
+
+/**
+ * freq: 20Hz = 20 ops/sec
+ * period: 1sec/20 = 50ms
+ */
+void timer_init_ISR_20Hz(int timer);
+
+/**
+ * freq: 10Hz = 10 ops/sec
+ * period: 1sec/10 = 100ms
+ */
+void timer_init_ISR_10Hz(int timer);
+
+/**
+ * freq: 5Hz = 5 ops/sec
+ * period: 1sec/5 = 200ms
+ */
+void timer_init_ISR_5Hz(int timer);
+
+/**
+ * freq: 2Hz = 2 ops/sec
+ * period: 1sec/2 = 500ms
+ */
+void timer_init_ISR_2Hz(int timer);
+
+/**
+ * freq: 1Hz = 1 ops/sec
+ * period: 1sec
+ */
+void timer_init_ISR_1Hz(int timer);
+
+// Core funcs
+
+/**
+ * Init ISR (Interrupt service routine) for the timer and start timer.
+ * 
+ * General algorithm
+ * http://www.robotshop.com/letsmakerobots/arduino-101-timers-and-interrupts
+ * 1. CPU frequency 16Mhz for Arduino
+ * 2. maximum timer counter value (256 for 8bit, 65536 for 16bit timer)
+ * 3. Divide CPU frequency through the choosen prescaler (16000000 / 256 = 62500)
+ * 4. Divide result through the desired frequency (62500 / 2Hz = 31250)
+ * 5. Verify the result against the maximum timer counter value (31250 < 65536 success).
+ *    If fail, choose bigger prescaler.
+ * 
+ * Example: to set timer clock period to 20ms (50 operations per second == 50Hz)
+ * 
+ * 1) on 16MHz CPU (AVR Arduino)
+ *   use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=40000:
+ *   16000000/8/50=40000
+ * 
+ * 2) on 80MHz CPU (PIC32MX ChipKIT)
+ *   use prescaler 1:64 (TIMER_PRESCALER_1_64) and adjustment=25000:
+ *   80000000/64/50=25000
+ * 
+ * Timer interrupt handler timer_handle_interrupts would be called every 20ms
+ * (50 times per second == 50Hz freq) in this case.
+ * 
+ * @param timer
+ *   system timer id: use TIMER_DEFAULT for default timer
+ *   or TIMER1, TIMER3, TIMER4 or TIMER5 for specific timer.
+ *   note: TIMERX constant would be set to '-1' if selected timer
+ *   is not available on current platform.
+ * @param prescaler
+ *   timer prescaler (1, 2, 4, 8, 16, 32, 64, 256),
+ *   use constants: PRESCALER_1, PRESCALER_2, PRESCALER_8,
+ *   PRESCALER_16, PRESCALER_32, PRESCALER_64, PRESCALER_256
+ * @param adjustment
+ *   adjustment divider after timer prescaled - timer compare match value.
+ */
+void timer_init_ISR(int timer, int prescaler, int adjustment);
+
+/**
+ * Stop ISR (Interrupt service routine) for the timer.
+ * 
+ * @param timer
+ *     system timer id for started ISR
+ */
+void timer_stop_ISR(int timer);
+
+/**
+ * Timer ISR (Interrupt service routine) handler.
+ * Implementation must be provided in module with user code.
+ * 
+ * @param timer
+ *     system timer id for started ISR 
+ */
+void timer_handle_interrupts(int timer);
+
+#endif
+
+
