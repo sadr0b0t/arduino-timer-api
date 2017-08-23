@@ -35,6 +35,8 @@ void setup() {
 void loop() {
     Serial.println("Hello from loop!");
     delay(5000);
+
+    // any code here: blocking or non-blicking
 }
 
 void timer_handle_interrupts(int timer) {
@@ -241,6 +243,8 @@ void setup() {
 void loop() {
     Serial.println("Hello from loop!");
     delay(5000);
+
+    // any code here: blocking or non-blicking
 }
 
 
