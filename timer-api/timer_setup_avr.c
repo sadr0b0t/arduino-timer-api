@@ -59,10 +59,10 @@
 #define _useTimer4
 typedef enum { _timer5, _timer1, _timer3, _timer4, _Nbr_16timers } timer16_Sequence_t;
 
-const int TIMER1 = _timer1;
-const int TIMER3 = _timer3;
-const int TIMER4 = _timer4;
-const int TIMER5 = _timer5;
+const int _TIMER1 = _timer1;
+const int _TIMER3 = _timer3;
+const int _TIMER4 = _timer4;
+const int _TIMER5 = _timer5;
 
 const int TIMER_DEFAULT = _timer5; //TIMER5;
 
@@ -70,10 +70,10 @@ const int TIMER_DEFAULT = _timer5; //TIMER5;
 #define _useTimer1
 typedef enum { _timer1, _Nbr_16timers } timer16_Sequence_t;
 
-const int TIMER1 = _timer1;
-const int TIMER3 = -1;
-const int TIMER4 = -1;
-const int TIMER5 = -1;
+const int _TIMER1 = _timer1;
+const int _TIMER3 = -1;
+const int _TIMER4 = -1;
+const int _TIMER5 = -1;
 
 const int TIMER_DEFAULT = _timer1; //TIMER1;
 
@@ -82,10 +82,10 @@ const int TIMER_DEFAULT = _timer1; //TIMER1;
 #define _useTimer1
 typedef enum { _timer3, _timer1, _Nbr_16timers } timer16_Sequence_t;
 
-const int TIMER1 = _timer1;
-const int TIMER3 = _timer3;
-const int TIMER4 = -1;
-const int TIMER5 = -1;
+const int _TIMER1 = _timer1;
+const int _TIMER3 = _timer3;
+const int _TIMER4 = -1;
+const int _TIMER5 = -1;
 
 const int TIMER_DEFAULT = _timer3; //TIMER3;
 
@@ -94,10 +94,10 @@ const int TIMER_DEFAULT = _timer3; //TIMER3;
 #define _useTimer1
 typedef enum { _timer3, _timer1, _Nbr_16timers } timer16_Sequence_t;
 
-const int TIMER1 = _timer1;
-const int TIMER3 = _timer3;
-const int TIMER4 = -1;
-const int TIMER5 = -1;
+const int _TIMER1 = _timer1;
+const int _TIMER3 = _timer3;
+const int _TIMER4 = -1;
+const int _TIMER5 = -1;
 
 const int TIMER_DEFAULT = _timer3; //TIMER3;
 
@@ -105,15 +105,21 @@ const int TIMER_DEFAULT = _timer3; //TIMER3;
 #define _useTimer1
 typedef enum { _timer1, _Nbr_16timers } timer16_Sequence_t;
 
-const int TIMER1 = _timer1;
-const int TIMER3 = -1;
-const int TIMER4 = -1;
-const int TIMER5 = -1;
+const int _TIMER1 = _timer1;
+const int _TIMER3 = -1;
+const int _TIMER4 = -1;
+const int _TIMER5 = -1;
 
 const int TIMER_DEFAULT = _timer1; //TIMER1;
 
 #endif
 
+// no Timer2 at all
+const int _TIMER2 = -1;
+
+// no 32-bit timers at all
+const int _TIMER2_32BIT = -1;
+const int _TIMER4_32BIT = -1;
 
 // Define timer prescaler options:
 // CS12 CS11 CS10
@@ -526,9 +532,9 @@ void timer_stop_ISR(int timer) {
 #if defined WIRING   // Wiring
     if(timer == _timer1) {
         #if defined(__AVR_ATmega1281__)||defined(__AVR_ATmega2561__)
-        TIMSK1 &=  ~_BV(OCIE1A) ;  // disable timer 1 output compare interrupt
+        TIMSK1 &= ~_BV(OCIE1A) ;  // disable timer 1 output compare interrupt
         #else
-        TIMSK &=  ~_BV(OCIE1A) ;  // disable timer 1 output compare interrupt
+        TIMSK &= ~_BV(OCIE1A) ;  // disable timer 1 output compare interrupt
         #endif
         timerDetach(TIMER1OUTCOMPAREA_INT);
     } else if(timer == _timer3) {

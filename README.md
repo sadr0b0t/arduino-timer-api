@@ -8,7 +8,7 @@ Supported platforms:
 # Установка
 
 ```bash
-git clone https://github.com/1i7/arduino-timer-api.git
+git clone https://github.com/sadr0b0t/arduino-timer-api.git
 cp -r ./arduino-timer-api/timer-api ~/Arduino/libraries/
 ```
 Перезапустить среду Arduino. Примеры должны появиться в меню _File/Examples/timer-api_
@@ -21,14 +21,33 @@ cp -r ./arduino-timer-api/timer-api ~/Arduino/libraries/
 void setup() {
     Serial.begin(9600);
 
-    // частота 5Гц == 5 операций в секунду <=>
-    // период таймера = 200мс
-    timer_init_ISR_5Hz(TIMER_DEFAULT);
+    // freq=1Hz, period=1s
+    // частота=1Гц, период=1с
+    timer_init_ISR_1Hz(TIMER_DEFAULT);
 
-    // частота 50Гц == 50 операций в секунду <=>
-    // период таймера = 20мс
-    //timer_init_ISR_50Hz(TIMER_DEFAULT);
+    // freq=2Hz, period=500ms
+    // частота=2Гц, период=500мс
+    //timer_init_ISR_2Hz(TIMER_DEFAULT);
     
+    // freq=5Hz, period=200ms
+    // частота=5Гц, период=500мс
+    //timer_init_ISR_5Hz(TIMER_DEFAULT);
+
+    //timer_init_ISR_100KHz(TIMER_DEFAULT);
+    //timer_init_ISR_50KHz(TIMER_DEFAULT);
+    //timer_init_ISR_20KHz(TIMER_DEFAULT);
+    //timer_init_ISR_10KHz(TIMER_DEFAULT);
+    //timer_init_ISR_5KHz(TIMER_DEFAULT);
+    //timer_init_ISR_2KHz(TIMER_DEFAULT);
+    //timer_init_ISR_1KHz(TIMER_DEFAULT);
+    //timer_init_ISR_100Hz(TIMER_DEFAULT);
+    //timer_init_ISR_50Hz(TIMER_DEFAULT);
+    //timer_init_ISR_20Hz(TIMER_DEFAULT);
+    //timer_init_ISR_10Hz(TIMER_DEFAULT);
+    //timer_init_ISR_5Hz(TIMER_DEFAULT);
+    //timer_init_ISR_2Hz(TIMER_DEFAULT);
+    //timer_init_ISR_1Hz(TIMER_DEFAULT);
+
     pinMode(13, OUTPUT);
 }
 
@@ -36,29 +55,31 @@ void loop() {
     Serial.println("Hello from loop!");
     delay(5000);
 
-    // any code here: blocking or non-blicking
+    // any code here: blocking or non-blocking
+    // здесь любой код: блокирующий или неблокирующий
 }
 
+/**
+ * Timer interrupt service routine, called with chosen period
+ * @param timer - timer id
+ */
+/**
+ * Процедура, вызываемая прерыванием по событию таймера с заданным периодом
+ * @param timer - идентификатор таймера
+ */
 void timer_handle_interrupts(int timer) {
-    static long prev_time = micros();
-
+    static long prev_time = 0;
+    
     long _time = micros();
     long _period = _time - prev_time;
     prev_time = _time;
     
-    static int count = 5;
+    Serial.print("goodbye from timer: ");
+    Serial.println(_period, DEC);
 
-    // печатаем сообщение на каждый 5й вызов прерывания
-    // (на частоте 5Гц - 1 раз в секунду)
-    if(count == 0) {
-        Serial.print("goodbye from timer: ");
-        Serial.println(_period, DEC);
-        
-        digitalWrite(13, !digitalRead(13));
-        
-        count = 5;
-    }
-    count--;
+    // blink led
+    // мигаем лампочкой
+    digitalWrite(13, !digitalRead(13));
 }
 ~~~
 
@@ -93,8 +114,9 @@ void timer_handle_interrupts(int timer) {
  * 
  * @param timer
  *   system timer id: use TIMER_DEFAULT for default timer
- *   or TIMER1, TIMER3, TIMER4 or TIMER5 for specific timer.
- *   note: TIMERX constant would be set to '-1' if selected timer
+ *   or _TIMER1, _TIMER2, _TIMER3, _TIMER4, TIMER5,
+ *   _TIMER2_32BIT or _TIMER4_32BIT for specific timer.
+ *   note: _TIMERX constant would be set to '-1' if selected timer
  *   is not available on current platform.
  * @param prescaler
  *   timer prescaler (1, 2, 4, 8, 16, 32, 64, 256),
@@ -196,13 +218,29 @@ void timer_init_ISR_10Hz(int timer);
  * period: 1sec/5 = 200ms
  */
 void timer_init_ISR_5Hz(int timer);
+
+/**
+ * freq: 2Hz = 2 ops/sec
+ * period: 1sec/2 = 500ms
+ */
+void timer_init_ISR_2Hz(int timer);
+
+/**
+ * freq: 1Hz = 1 ops/sec
+ * period: 1sec
+ */
+void timer_init_ISR_1Hz(int timer);
 ~~~
 
 _Замечание_  
-Варианты вызовов timer_init_ISR_2Hz (2Гц, период 500мс) и timer_init_ISR_1Hz (1Гц, период 1с) пока отключены, т.к. при 16-битных режимах таймеров PIC32MX 80МГц комбинация делитель частоты (prescaler - максимальный вариант 1/256) + поправка периода (adjustment - максимальный вариант 2^16=65536) дают минимальную частоту 5Гц (период - 200мс):  
+Варианты вызовов timer_init_ISR_2Hz (2Гц, период 500мс) и timer_init_ISR_1Hz (1Гц, период 1с) на PIC32MX 80МГц будут работать только с 32-битными таймерами (_TIMER2_32BIT и _TIMER4_32BIT; TIMER_DEFAULT - по умолчанию = _TIMER4_32BIT), т.к. при 16-битных режимах таймеров PIC32MX 80МГц комбинация "делитель частоты" (prescaler - максимальный вариант 1/256) + "поправка периода" (adjustment - максимальный вариант 2^16=65536) дают минимальную частоту 5Гц (период - 200мс):  
 80000000/256/65536 = 4.8Гц
 
-Чтобы сделать еще меньше, нужно переводить таймер в режим 32 бит (при этом на PIC32 не все таймеры работают в 32-битном режиме, а те, которые работают, занимают ресурсы 2го таймера: например, Timer4(16бит)+Timer5(16бит)=Timer4(32бит)).
+На PIC32 32-битные таймеры создаются комбинацией 2х 16-битных таймеров:
+- Timer4(32бит) = Timer4(16бит)+Timer5(16бит)
+- Timer2(32бит) = Timer2(16бит)+Timer3(16бит)
+
+поэтому при использовании таймера _TIMER2_32BIT, обычные таймеры _TIMER2 и _TIMER3 будут заняты, при использовании _TIMER4_32BIT - заняты будут _TIMER4 и _TIMER5.
 
 На Ардуине можно получить частоту 1Гц стандартными делителями, но без аналогичного вариата для PIC32 вызовы не получится сделать кросс-платформенными.
 
@@ -219,7 +257,8 @@ void setup() {
     // 2. maximum timer counter value (256 for 8bit, 65536 for 16bit timer)
     // 3. Divide CPU frequency through the choosen prescaler (16000000 / 256 = 62500)
     // 4. Divide result through the desired frequency (62500 / 2Hz = 31250)
-    // 5. Verify the result against the maximum timer counter value (31250 < 65536 success) if fail, choose bigger prescaler.
+    // 5. Verify the result against the maximum timer counter value (31250 < 65536 success).
+    //    If fail, choose bigger prescaler.
     
     // Arduino 16МГц
     // Настроим и запустим таймер с периодом 20 миллисекунд (50 срабатываний в секунду == 50Гц):
@@ -227,7 +266,7 @@ void setup() {
     // 16000000/8/50=40000 (50Hz - срабатывает 50 раз в секунду, т.е. каждые 20мс)
     // Обработчик прерывания от таймера - функция timer_handle_interrupts 
     // (с заданными настройками будет вызываться каждые 20мс).
-    //timer_init_ISR(TIMER_DEFAULT, TIMER_PRESCALER_1_8, 40000-1);
+    timer_init_ISR(TIMER_DEFAULT, TIMER_PRESCALER_1_8, 40000-1);
     
     // ChipKIT PIC32MX 80МГц
     // Настроим и запустим таймер с периодом 20 миллисекунд (50 срабатываний в секунду == 50Гц):
@@ -235,7 +274,7 @@ void setup() {
     // 80000000/64/25000=50 (срабатывает 50 раз в секунду, т.е. каждые 20мс)
     // Обработчик прерывания от таймера - функция timer_handle_interrupts 
     // (с заданными настройками будет вызываться каждые 20мс).
-    timer_init_ISR(TIMER_DEFAULT, TIMER_PRESCALER_1_64, 25000-1);
+    //timer_init_ISR(TIMER_DEFAULT, TIMER_PRESCALER_1_64, 25000-1);
     
     pinMode(13, OUTPUT);
 }
@@ -244,12 +283,17 @@ void loop() {
     Serial.println("Hello from loop!");
     delay(5000);
 
-    // any code here: blocking or non-blicking
+    // any code here: blocking or non-blocking
+    // здесь любой код: блокирующий или неблокирующий
 }
 
-
 /**
- * Процедура, вызываемая прерыванием по событию таймера с заданным периодом.
+ * Timer interrupt service routine, called with chosen period
+ * @param timer - timer id
+ */
+/**
+ * Процедура, вызываемая прерыванием по событию таймера с заданным периодом
+ * @param timer - идентификатор таймера
  */
 void timer_handle_interrupts(int timer) {
     static long prev_time = micros();
@@ -258,19 +302,22 @@ void timer_handle_interrupts(int timer) {
     long _period = _time - prev_time;
     prev_time = _time;
 
-    static int count = 50;
+    static int count = 49;
 
+    // print status every 50 interrupt call,
+    // on timer freq 50Hz - once per second
     // печатаем статус каждые 50 вызовов прерывания,
-    // на частоте 50Гц - 1 раз в секунду
+    // на частоте таймера 50Гц - 1 раз в секунду
     if(count == 0) {
         Serial.print("goodbye from timer: ");
         Serial.println(_period, DEC);
         
         digitalWrite(13, !digitalRead(13));
         
-        count = 50;
+        count = 49;
+    } else {
+        count--;
     }
-    count--;
 }
 ~~~
 

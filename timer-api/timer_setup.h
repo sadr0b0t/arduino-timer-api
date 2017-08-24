@@ -2,10 +2,15 @@
 #define TIMER_SETUP_H
 
 // Define timer ids
-extern const int TIMER1;
-extern const int TIMER3;
-extern const int TIMER4;
-extern const int TIMER5;
+extern const int _TIMER1;
+extern const int _TIMER2;
+extern const int _TIMER3;
+extern const int _TIMER4;
+extern const int _TIMER5;
+
+// 32-bit timers
+extern const int _TIMER2_32BIT;
+extern const int _TIMER4_32BIT;
 
 extern const int TIMER_DEFAULT;
 
@@ -136,8 +141,9 @@ void timer_init_ISR_1Hz(int timer);
  * 
  * @param timer
  *   system timer id: use TIMER_DEFAULT for default timer
- *   or TIMER1, TIMER3, TIMER4 or TIMER5 for specific timer.
- *   note: TIMERX constant would be set to '-1' if selected timer
+ *   or _TIMER1, _TIMER2, _TIMER3, _TIMER4, TIMER5,
+ *   _TIMER2_32BIT or _TIMER4_32BIT for specific timer.
+ *   note: _TIMERX constant would be set to '-1' if selected timer
  *   is not available on current platform.
  * @param prescaler
  *   timer prescaler (1, 2, 4, 8, 16, 32, 64, 256),

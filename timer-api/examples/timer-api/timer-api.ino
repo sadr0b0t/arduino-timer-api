@@ -3,14 +3,33 @@
 void setup() {
     Serial.begin(9600);
 
-    // частота 5Гц == 5 операций в секунду <=>
-    // период таймера = 200мс
-    timer_init_ISR_5Hz(TIMER_DEFAULT);
+    // freq=1Hz, period=1s
+    // частота=1Гц, период=1с
+    timer_init_ISR_1Hz(TIMER_DEFAULT);
 
-    // частота 50Гц == 50 операций в секунду <=>
-    // период таймера = 20мс
-    //timer_init_ISR_50Hz(TIMER_DEFAULT);
+    // freq=2Hz, period=500ms
+    // частота=2Гц, период=500мс
+    //timer_init_ISR_2Hz(TIMER_DEFAULT);
     
+    // freq=5Hz, period=200ms
+    // частота=5Гц, период=500мс
+    //timer_init_ISR_5Hz(TIMER_DEFAULT);
+
+    //timer_init_ISR_100KHz(TIMER_DEFAULT);
+    //timer_init_ISR_50KHz(TIMER_DEFAULT);
+    //timer_init_ISR_20KHz(TIMER_DEFAULT);
+    //timer_init_ISR_10KHz(TIMER_DEFAULT);
+    //timer_init_ISR_5KHz(TIMER_DEFAULT);
+    //timer_init_ISR_2KHz(TIMER_DEFAULT);
+    //timer_init_ISR_1KHz(TIMER_DEFAULT);
+    //timer_init_ISR_100Hz(TIMER_DEFAULT);
+    //timer_init_ISR_50Hz(TIMER_DEFAULT);
+    //timer_init_ISR_20Hz(TIMER_DEFAULT);
+    //timer_init_ISR_10Hz(TIMER_DEFAULT);
+    //timer_init_ISR_5Hz(TIMER_DEFAULT);
+    //timer_init_ISR_2Hz(TIMER_DEFAULT);
+    //timer_init_ISR_1Hz(TIMER_DEFAULT);
+
     pinMode(13, OUTPUT);
 }
 
@@ -18,28 +37,30 @@ void loop() {
     Serial.println("Hello from loop!");
     delay(5000);
 
-    // any code here: blocking or non-blicking
+    // any code here: blocking or non-blocking
+    // здесь любой код: блокирующий или неблокирующий
 }
 
+/**
+ * Timer interrupt service routine, called with chosen period
+ * @param timer - timer id
+ */
+/**
+ * Процедура, вызываемая прерыванием по событию таймера с заданным периодом
+ * @param timer - идентификатор таймера
+ */
 void timer_handle_interrupts(int timer) {
-    static long prev_time = micros();
-
+    static long prev_time = 0;
+    
     long _time = micros();
     long _period = _time - prev_time;
     prev_time = _time;
     
-    static int count = 5;
+    Serial.print("goodbye from timer: ");
+    Serial.println(_period, DEC);
 
-    // печатаем сообщение на каждый 5й вызов прерывания
-    // (на частоте 5Гц - 1 раз в секунду)
-    if(count == 0) {
-        Serial.print("goodbye from timer: ");
-        Serial.println(_period, DEC);
-        
-        digitalWrite(13, !digitalRead(13));
-        
-        count = 5;
-    }
-    count--;
+    // blink led
+    // мигаем лампочкой
+    digitalWrite(13, !digitalRead(13));
 }
 
