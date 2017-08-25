@@ -28,6 +28,24 @@ extern const int TIMER_PRESCALER_1_1024;
 // Typical freqs
 
 /**
+ * freq: 1MHz = 1000000 ops/sec
+ * period: 1sec/1000000 = 1us
+ */
+void timer_init_ISR_1MHz(int timer);
+
+/**
+ * freq: 500KHz = 500000 ops/sec
+ * period: 1sec/500000 = 2us
+ */
+void timer_init_ISR_500KHz(int timer);
+
+/**
+ * freq: 200KHz = 200000 ops/sec
+ * period: 1sec/200000 = 5us
+ */
+void timer_init_ISR_200KHz(int timer);
+
+/**
  * freq: 100KHz = 100000 ops/sec
  * period: 1sec/100000 = 10us
  */
@@ -69,6 +87,18 @@ void timer_init_ISR_2KHz(int timer);
  * period: 1sec/1000 = 1ms
  */
 void timer_init_ISR_1KHz(int timer);
+
+/**
+ * freq: 500Hz = 500 ops/sec
+ * period: 1sec/500 = 2ms
+ */
+void timer_init_ISR_500Hz(int timer);
+
+/**
+ * freq: 200Hz = 200 ops/sec
+ * period: 1sec/200 = 5ms
+ */
+void timer_init_ISR_200Hz(int timer);
 
 /**
  * freq: 100Hz = 100 ops/sec

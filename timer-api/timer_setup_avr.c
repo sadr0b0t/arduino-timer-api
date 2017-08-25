@@ -179,6 +179,39 @@ void Timer3Service() {
 // Typical freqs
 
 /**
+ * freq: 1MHz = 1000000 ops/sec
+ * period: 1sec/1000000 = 1us
+ */
+void timer_init_ISR_1MHz(int timer) {
+    // to set timer clock period to 1us (1000000 operations per second == 1MHz) on 16MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=2:
+    // 16000000/8/500000 = 2000000/1000000 = 2
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 2-1);
+}
+
+/**
+ * freq: 500KHz = 500000 ops/sec
+ * period: 1sec/500000 = 2us
+ */
+void timer_init_ISR_500KHz(int timer) {
+    // to set timer clock period to 2us (500000 operations per second == 500KHz) on 16MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=4:
+    // 16000000/8/500000 = 2000000/500000 = 4
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 4-1);
+}
+
+/**
+ * freq: 200KHz = 200000 ops/sec
+ * period: 1sec/200000 = 5us
+ */
+void timer_init_ISR_200KHz(int timer) {
+    // to set timer clock period to 5us (200000 operations per second == 200KHz) on 16MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=10:
+    // 16000000/8/200000 = 2000000/200000 = 10
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 10-1);
+}
+
+/**
  * freq: 100KHz = 100000 ops/sec
  * period: 1sec/100000 = 10us
  */
@@ -253,6 +286,28 @@ void timer_init_ISR_1KHz(int timer) {
     // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=2000:
     // 16000000/8/1000 = 2000000/1000 = 2000
     timer_init_ISR(timer, TIMER_PRESCALER_1_8, 2000-1);
+}
+
+/**
+ * freq: 500Hz = 500 ops/sec
+ * period: 1sec/500 = 2ms
+ */
+void timer_init_ISR_500Hz(int timer) {
+    // to set timer clock period to 2ms (500 operations per second == 500Hz) on 16MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=4000:
+    // 16000000/8/500 = 2000000/500 = 4000
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 4000-1);
+}
+
+/**
+ * freq: 200Hz = 200 ops/sec
+ * period: 1sec/200 = 5ms
+ */
+void timer_init_ISR_200Hz(int timer) {
+    // to set timer clock period to 5ms (200 operations per second == 200Hz) on 16MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=10000:
+    // 16000000/8/200 = 2000000/200 = 10000
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 10000-1);
 }
 
 /**

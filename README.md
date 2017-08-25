@@ -33,6 +33,8 @@ void setup() {
     // частота=5Гц, период=500мс
     //timer_init_ISR_5Hz(TIMER_DEFAULT);
 
+    //timer_init_ISR_500KHz(TIMER_DEFAULT);
+    //timer_init_ISR_200KHz(TIMER_DEFAULT);
     //timer_init_ISR_100KHz(TIMER_DEFAULT);
     //timer_init_ISR_50KHz(TIMER_DEFAULT);
     //timer_init_ISR_20KHz(TIMER_DEFAULT);
@@ -40,6 +42,8 @@ void setup() {
     //timer_init_ISR_5KHz(TIMER_DEFAULT);
     //timer_init_ISR_2KHz(TIMER_DEFAULT);
     //timer_init_ISR_1KHz(TIMER_DEFAULT);
+    //timer_init_ISR_500Hz(TIMER_DEFAULT);
+    //timer_init_ISR_200Hz(TIMER_DEFAULT);
     //timer_init_ISR_100Hz(TIMER_DEFAULT);
     //timer_init_ISR_50Hz(TIMER_DEFAULT);
     //timer_init_ISR_20Hz(TIMER_DEFAULT);
@@ -147,6 +151,19 @@ void timer_handle_interrupts(int timer);
 
 ## Встроенные варианты частот
 ~~~cpp
+
+/**
+ * freq: 500KHz = 500000 ops/sec
+ * period: 1sec/500000 = 2us
+ */
+void timer_init_ISR_500KHz(int timer);
+
+/**
+ * freq: 200KHz = 200000 ops/sec
+ * period: 1sec/200000 = 5us
+ */
+void timer_init_ISR_200KHz(int timer);s
+
 /**
  * freq: 100KHz = 100000 ops/sec
  * period: 1sec/100000 = 10us
@@ -188,6 +205,18 @@ void timer_init_ISR_2KHz(int timer);
  * period: 1sec/1000 = 1ms
  */
 void timer_init_ISR_1KHz(int timer);
+
+/**
+ * freq: 500Hz = 500 ops/sec
+ * period: 1sec/500 = 2ms
+ */
+void timer_init_ISR_500Hz(int timer);
+
+/**
+ * freq: 200Hz = 200 ops/sec
+ * period: 1sec/200 = 5ms
+ */
+void timer_init_ISR_200Hz(int timer);
 
 /**
  * freq: 100Hz = 100 ops/sec
@@ -232,7 +261,8 @@ void timer_init_ISR_2Hz(int timer);
 void timer_init_ISR_1Hz(int timer);
 ~~~
 
-_Замечание_  
+## Минимальные частоты и разрядность таймеров
+
 Варианты вызовов timer_init_ISR_2Hz (2Гц, период 500мс) и timer_init_ISR_1Hz (1Гц, период 1с) на PIC32MX 80МГц будут работать только с 32-битными таймерами (_TIMER2_32BIT и _TIMER4_32BIT; TIMER_DEFAULT - по умолчанию = _TIMER4_32BIT), т.к. при 16-битных режимах таймеров PIC32MX 80МГц комбинация "делитель частоты" (prescaler - максимальный вариант 1/256) + "поправка периода" (adjustment - максимальный вариант 2^16=65536) дают минимальную частоту 5Гц (период - 200мс):  
 80000000/256/65536 = 4.8Гц
 
@@ -242,9 +272,65 @@ _Замечание_
 
 поэтому при использовании таймера _TIMER2_32BIT, обычные таймеры _TIMER2 и _TIMER3 будут заняты, при использовании _TIMER4_32BIT - заняты будут _TIMER4 и _TIMER5.
 
-На Ардуине можно получить частоту 1Гц стандартными делителями, но без аналогичного вариата для PIC32 вызовы не получится сделать кросс-платформенными.
+На Ардуине можно получить частоту 1Гц стандартными делителями на 16-битном таймере.
 
-# Собственная частота
+## Максимальные частоты
+
+Эксперименты с высокими частотами прерываний на разных чипах
+- PIC32MX 80MHz (ChipKIT Uno32)
+- AVR 16MHz (Arduino Leonardo)
+
+cкетч: Examples/timer-api/timer-api-test-max-freq
+
+Для PIC32MX 80МГц самый лучший надежный вариант - 200КГц: целевой период 5мкс совпадает с замерами. На 500КГц (целевой период 2мкс) замер периода показывает 4мкс (в 2 раза больше), но если просуммировать период 1000 циклов, получается 2006мкс, т.е. всего на 6 мкс больше, чем целевое значение (2*1000=2000мкс). Судя по всему, ошибка не накапливается по циклам, а является константой, т.е. скорее всего добавляется на одном из циклов, например, при проведении замера вызовом mikros (т.е. на такой частоте сам замер дает значимую погрешность). Для частоты 1МГц (целевой период 1мкс) ошибка уже накапливается - на 1000 циклов суммарный период получается те же 2005мкс против целевых 1000мкс, т.е. частота для прерываний полностью не рабочая.
+
+Для AVR 16МГц лучший относительно надежный вариант - 20КГц (целевой период - 50мкс): есть кое-какая погрешность +/-4 (на пике 6) микросекунды, но на сумме 2х вызовов период получается почти все время ровно 100мкс. Варианты 50КГц (период 20мкс) и 100КГц (период 10мкс), вообще, тоже работают, но та же погрешность +/4 микросекунды на одном периоде уже становится существенной по сравнений с целевым периодом, хотя на сумме 1000 периодов погрешность остаётся той же константой +/-4мкс. Судя по всему, эти +/4 микросекунды являются допустимой погрешностью при вызове прерывания на этом чипе. Вариант 200КГц (целевой период 5мкс) уже полностью не рабочий: на одном периоде замер показывает те же 12-16мкс, на сумме ошибка не остаётся константой, а нарастает (10 периодов - 84мкс вместо нужных 50ти).
+
+~~~cpp
+    // period = 1us
+    // PIC32MX (ChipKIT Uno32): 3us, x2=5us, x10=21us, x1000=2005us (+2us, ~fail)
+    // AVR (Arduino Leonardo): 12/16us, x10=80/84/92us (fail)
+    timer_init_ISR_1MHz(TIMER_DEFAULT);
+~~~
+~~~cpp
+    // period = 2us
+    // PIC32MX (ChipKIT Uno32): 4us, x2=6us, x10=22us, x1000=2006us (+2us, ~fail)
+    // AVR (Arduino Leonardo): 12/16us, x10=84us (fail)
+    timer_init_ISR_500KHz(TIMER_DEFAULT);
+~~~
+~~~cpp
+    // period = 5us
+    // PIC32MX (ChipKIT Uno32): 5us, x10=50us (ok)
+    // AVR (Arduino Leonardo): 12/16us, x2=20us, x10=84us (fail)
+    timer_init_ISR_200KHz(TIMER_DEFAULT);
+~~~
+~~~cpp
+    // period = 10us
+    // PIC32MX (ChipKIT Uno32): 10us (ok)
+    // AVR (Arduino Leonardo): 12us, x2=20us, x10=100/104/108us, x1000=10000  (~ok)
+    timer_init_ISR_100KHz(TIMER_DEFAULT);
+~~~
+~~~cpp
+    // period = 20us
+    // PIC32MX (ChipKIT Uno32): 20us (ok)
+    // AVR (Arduino Leonardo): 12/20/24us, x2=40/44/48us, x1000=19996/20000/20004 (~ok)
+    timer_init_ISR_50KHz(TIMER_DEFAULT);
+~~~
+~~~cpp
+    // period = 50us
+    // PIC32MX (ChipKIT Uno32): 50us (ok)
+    // AVR (Arduino Leonardo): 48/52/56us, x2=100us (ok)
+    timer_init_ISR_20KHz(TIMER_DEFAULT);
+~~~
+~~~cpp
+    // period = 100us
+    // PIC32MX (ChipKIT Uno32): 100us (ok)
+    // AVR (Arduino Leonardo): 96/100/104us, x2=200/204us (ok)
+    timer_init_ISR_10KHz(TIMER_DEFAULT);
+~~~
+
+
+# Произвольная частота
 
 ~~~cpp
 #include"timer-api.h"

@@ -145,6 +145,66 @@ void __attribute__((interrupt(),nomips16)) T45_IntHandler (void) {
 // Typical freqs
 
 /**
+ * freq: 1MHz = 1000000 ops/sec
+ * period: 1sec/1000000 = 1us
+ */
+void timer_init_ISR_1MHz(int timer) {
+#if defined(__PIC32MX1XX__) || defined(__PIC32MX2XX__)
+    // 40MHz
+    // TODO
+#elif defined(__PIC32MZXX__)
+    // 200MHz
+    // TODO
+#else
+    // 80MHz
+    // to set timer clock period to 1us (1000000 operations per second == 1MHz) on 80MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=10:
+    // 80000000/8/1000000 = 10000000/1000000 = 10
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 10-1);
+#endif
+}
+
+/**
+ * freq: 500KHz = 500000 ops/sec
+ * period: 1sec/500000 = 2us
+ */
+void timer_init_ISR_500KHz(int timer) {
+#if defined(__PIC32MX1XX__) || defined(__PIC32MX2XX__)
+    // 40MHz
+    // TODO
+#elif defined(__PIC32MZXX__)
+    // 200MHz
+    // TODO
+#else
+    // 80MHz
+    // to set timer clock period to 2us (500000 operations per second == 500KHz) on 80MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=20:
+    // 80000000/8/500000 = 10000000/500000 = 20
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 20-1);
+#endif
+}
+
+/**
+ * freq: 200KHz = 200000 ops/sec
+ * period: 1sec/200000 = 5us
+ */
+void timer_init_ISR_200KHz(int timer) {
+#if defined(__PIC32MX1XX__) || defined(__PIC32MX2XX__)
+    // 40MHz
+    // TODO
+#elif defined(__PIC32MZXX__)
+    // 200MHz
+    // TODO
+#else
+    // 80MHz
+    // to set timer clock period to 5us (200000 operations per second == 200KHz) on 80MHz CPU
+    // use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=50:
+    // 80000000/8/200000 = 10000000/200000 = 50
+    timer_init_ISR(timer, TIMER_PRESCALER_1_8, 50-1);
+#endif
+}
+
+/**
  * freq: 100KHz = 100000 ops/sec
  * period: 1sec/100000 = 10us
  */
@@ -281,6 +341,46 @@ void timer_init_ISR_1KHz(int timer) {
     // use prescaler 1:64 (TIMER_PRESCALER_1_64) and adjustment=1250:
     // 80000000/64/1000 = 1250000/1000 = 1250
     timer_init_ISR(timer, TIMER_PRESCALER_1_64, 1250-1);
+#endif
+}
+
+/**
+ * freq: 500Hz = 500 ops/sec
+ * period: 1sec/500 = 2ms
+ */
+void timer_init_ISR_500Hz(int timer) {
+#if defined(__PIC32MX1XX__) || defined(__PIC32MX2XX__)
+    // 40MHz
+    // TODO
+#elif defined(__PIC32MZXX__)
+    // 200MHz
+    // TODO
+#else
+    // 80MHz
+    // to set timer clock period to 2ms (500 operations per second == 500Hz) on 80MHz CPU
+    // use prescaler 1:64 (TIMER_PRESCALER_1_64) and adjustment=2500:
+    // 80000000/64/500 = 1250000/500 = 2500
+    timer_init_ISR(timer, TIMER_PRESCALER_1_64, 2500-1);
+#endif
+}
+
+/**
+ * freq: 200Hz = 200 ops/sec
+ * period: 1sec/200 = 5ms
+ */
+void timer_init_ISR_200Hz(int timer) {
+#if defined(__PIC32MX1XX__) || defined(__PIC32MX2XX__)
+    // 40MHz
+    // TODO
+#elif defined(__PIC32MZXX__)
+    // 200MHz
+    // TODO
+#else
+    // 80MHz
+    // to set timer clock period to 5ms (200 operations per second == 200Hz) on 80MHz CPU
+    // use prescaler 1:64 (TIMER_PRESCALER_1_64) and adjustment=6250:
+    // 80000000/64/200 = 1250000/200 = 6250
+    timer_init_ISR(timer, TIMER_PRESCALER_1_64, 6250-1);
 #endif
 }
 

@@ -15,6 +15,8 @@ void setup() {
     // частота=5Гц, период=500мс
     //timer_init_ISR_5Hz(TIMER_DEFAULT);
 
+    //timer_init_ISR_500KHz(TIMER_DEFAULT);
+    //timer_init_ISR_200KHz(TIMER_DEFAULT);
     //timer_init_ISR_100KHz(TIMER_DEFAULT);
     //timer_init_ISR_50KHz(TIMER_DEFAULT);
     //timer_init_ISR_20KHz(TIMER_DEFAULT);
@@ -22,6 +24,8 @@ void setup() {
     //timer_init_ISR_5KHz(TIMER_DEFAULT);
     //timer_init_ISR_2KHz(TIMER_DEFAULT);
     //timer_init_ISR_1KHz(TIMER_DEFAULT);
+    //timer_init_ISR_500Hz(TIMER_DEFAULT);
+    //timer_init_ISR_200Hz(TIMER_DEFAULT);
     //timer_init_ISR_100Hz(TIMER_DEFAULT);
     //timer_init_ISR_50Hz(TIMER_DEFAULT);
     //timer_init_ISR_20Hz(TIMER_DEFAULT);

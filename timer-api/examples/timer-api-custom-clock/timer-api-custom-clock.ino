@@ -47,7 +47,7 @@ void loop() {
  * @param timer - идентификатор таймера
  */
 void timer_handle_interrupts(int timer) {
-    static long prev_time = micros();
+    static long prev_time = 0;
 
     long _time = micros();
     long _period = _time - prev_time;
