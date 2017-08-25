@@ -288,7 +288,7 @@ cкетч: Examples/timer-api/timer-api-test-max-freq
 
 ~~~cpp
     // period = 1us
-    // PIC32MX (ChipKIT Uno32): 3us, x2=5us, x10=21us, x1000=2005us (+2us, ~fail)
+    // PIC32MX (ChipKIT Uno32): 3us, x2=5us, x10=21us, x1000=2005us (fail)
     // AVR (Arduino Leonardo): 12/16us, x10=80/84/92us (fail)
     timer_init_ISR_1MHz(TIMER_DEFAULT);
 ~~~
