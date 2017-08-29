@@ -182,7 +182,7 @@ void timer_init_ISR_1Hz(int timer);
  * @param adjustment
  *   adjustment divider after timer prescaled - timer compare match value.
  */
-void timer_init_ISR(int timer, int prescaler, int adjustment);
+void timer_init_ISR(int timer, int prescaler, unsigned int adjustment);
 
 /**
  * Stop ISR (Interrupt service routine) for the timer.

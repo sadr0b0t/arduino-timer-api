@@ -566,7 +566,7 @@ void timer_init_ISR_1Hz(int timer) {
  * @param adjustment
  *   adjustment divider after timer prescaled - timer compare match value.
  */
-void timer_init_ISR(int timer, int prescaler, int adjustment) {
+void timer_init_ISR(int timer, int prescaler, unsigned int adjustment) {
     // See PIC32 family reference manual Section 14. Timers
     
     if(timer == _TIMER1) {

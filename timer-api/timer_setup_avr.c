@@ -417,7 +417,7 @@ void timer_init_ISR_1Hz(int timer) {
  * @param adjustment
  *   adjustment divider after timer prescaled - timer compare match value
  */
-void timer_init_ISR(int timer, int prescaler, int adjustment) {
+void timer_init_ISR(int timer, int prescaler, unsigned int adjustment) {
 #if defined (_useTimer1)
     if(timer == _timer1) {
         // CS12 CS11 CS10

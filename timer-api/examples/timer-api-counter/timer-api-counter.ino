@@ -27,10 +27,10 @@ void loop() {
  * @param timer - идентификатор таймера
  */
 void timer_handle_interrupts(int timer) {
-    static long prev_time = 0;
+    static unsigned long prev_time = 0;
 
-    long _time = micros();
-    long _period = _time - prev_time;
+    unsigned long _time = micros();
+    unsigned long _period = _time - prev_time;
     prev_time = _time;
 
     // additional period multiplicator
