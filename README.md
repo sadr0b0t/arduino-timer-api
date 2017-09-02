@@ -7,11 +7,12 @@ Supported platforms:
 
 # Установка
 
-```bash
+~~~bash
+cd ~/Arduino/libraries/
 git clone https://github.com/sadr0b0t/arduino-timer-api.git
-cp -r ./arduino-timer-api/timer-api ~/Arduino/libraries/
-```
-Перезапустить среду Arduino. Примеры должны появиться в меню _File/Examples/timer-api_
+~~~
+
+Перезапустить среду Arduino. Примеры должны появиться в меню _File/Examples/arduino-timer-api_
 
 # Запуск таймера
 
