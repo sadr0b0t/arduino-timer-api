@@ -12,9 +12,11 @@ cd ~/Arduino/libraries/
 git clone https://github.com/sadr0b0t/arduino-timer-api.git
 ~~~
 
-или на странице github нажать Clone or download > Download ZIP, затем установить архив arduino-timer-api-master.zip через меню установки библиотек в среде Arduino.
+и перезапустить среду Arduino.
 
-Перезапустить среду Arduino. Примеры должны появиться в меню _File/Examples/arduino-timer-api_
+Или на странице github нажать Clone or download > Download ZIP, затем установить архив arduino-timer-api-master.zip через меню установки библиотек в среде Arduino (Скетч > Подключить библиотеку > Добавить .ZIP библиотеку...).
+
+Примеры должны появиться в меню _File/Examples/arduino-timer-api_
 
 # Запуск таймера
 
