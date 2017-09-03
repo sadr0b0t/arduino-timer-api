@@ -33,7 +33,7 @@ void setup() {
     //timer_init_ISR_2Hz(TIMER_DEFAULT);
     
     // freq=5Hz, period=200ms
-    // частота=5Гц, период=500мс
+    // частота=5Гц, период=200мс
     //timer_init_ISR_5Hz(TIMER_DEFAULT);
 
     //timer_init_ISR_500KHz(TIMER_DEFAULT);
