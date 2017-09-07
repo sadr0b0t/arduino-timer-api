@@ -6,8 +6,19 @@ int _timer = TIMER_DEFAULT;
 //int _timer = _TIMER3;
 //int _timer = _TIMER4;
 //int _timer = _TIMER5;
+//int _timer = _TIMER6;
+//int _timer = _TIMER7;
+//int _timer = _TIMER8;
+//int _timer = _TIMER9;
+//int _timer = _TIMER1_32BIT;
 //int _timer = _TIMER2_32BIT;
+//int _timer = _TIMER3_32BIT;
 //int _timer = _TIMER4_32BIT;
+//int _timer = _TIMER5_32BIT;
+//int _timer = _TIMER6_32BIT;
+//int _timer = _TIMER7_32BIT;
+//int _timer = _TIMER8_32BIT;
+//int _timer = _TIMER9_32BIT;
 
 void setup() {
     Serial.begin(9600);

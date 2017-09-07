@@ -2,8 +2,9 @@
 Cross-platform Arduino timer API.
 
 Supported platforms:
-- Arduino (AVR 16MHz)
-- ChipKIT (PIC32MX 80MHz; PIC32MZ 200MHz - partially, wip)
+- Arduino (AVR 16MHz, 16 bit)
+- Arduino Due (SAM 84MHz, 32 bit)
+- ChipKIT (PIC32MX 80MHz, 32 bit; PIC32MZ 200MHz - partially, wip)
 
 # Установка
 
@@ -111,26 +112,30 @@ void timer_handle_interrupts(int timer) {
  * Example: to set timer clock period to 20ms (50 operations per second == 50Hz)
  * 
  * 1) on 16MHz CPU (AVR Arduino)
- *   use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=40000:
- *   16000000/8/50=40000
+ *   use prescaler 1:8 (TIMER_PRESCALER_1_8) and adjustment=40000-1:
+ *   16000000/8/50=40000, minus 1 cause count from zero.
  * 
  * 2) on 80MHz CPU (PIC32MX ChipKIT)
- *   use prescaler 1:64 (TIMER_PRESCALER_1_64) and adjustment=25000:
- *   80000000/64/50=25000
+ *   use prescaler 1:64 (TIMER_PRESCALER_1_64) and adjustment=25000-1:
+ *   80000000/64/50=25000, minus 1 cause count from zero.
+ *
+ * 3) on 84MHz CPU (SAM Arduino Due)
+ *   use prescaler 1:128 (TIMER_PRESCALER_1_128) and adjustment=13125-1:
+ *   80000000/128/50=13125, minus 1 cause count from zero.
  * 
  * Timer interrupt handler timer_handle_interrupts would be called every 20ms
  * (50 times per second == 50Hz freq) in this case.
  * 
  * @param timer
  *   system timer id: use TIMER_DEFAULT for default timer
- *   or _TIMER1, _TIMER2, _TIMER3, _TIMER4, TIMER5,
- *   _TIMER2_32BIT or _TIMER4_32BIT for specific timer.
- *   note: _TIMERX constant would be set to '-1' if selected timer
- *   is not available on current platform.
+ *   or _TIMER1...TIMER9, _TIMER1_32BIT..._TIMER9_32BIT for specific timer.
+ *   note: availability of specific timer depends on the platform.
  * @param prescaler
- *   timer prescaler (1, 2, 4, 8, 16, 32, 64, 256),
- *   use constants: PRESCALER_1, PRESCALER_2, PRESCALER_8,
- *   PRESCALER_16, PRESCALER_32, PRESCALER_64, PRESCALER_256
+ *   timer prescaler (1, 2, 4, 8, 16, 32, 64, 128, 256, 1024),
+ *   use constants: PRESCALER_1_1, PRESCALER_1_2, PRESCALER_1_8,
+ *   PRESCALER_1_16, PRESCALER_1_32, PRESCALER_1_64, PRESCALER_1_128
+ *   PRESCALER_1_256, PRESCALER_1_1024
+ *   note: availability of specific prescaler depends on the platform.
  * @param adjustment
  *   adjustment divider after timer prescaled - timer compare match value.
  */
@@ -266,6 +271,24 @@ void timer_init_ISR_2Hz(int timer);
 void timer_init_ISR_1Hz(int timer);
 ~~~
 
+## Выбор таймера
+
+На всех платформах доступно значение TIMER_DEFAULT, которое указывает на рабочий таймер по умолчанию.
+
+Если есть необходимость использовать другой таймер, можно указать его имя напрямую: _TIMER1...TIMER9, _TIMER1_32BIT..._TIMER9_32BIT
+
+Однако для разных аппаратных платформ доступно разное количество таймеров с разными именами, поэтому указание конкретного таймера по имени может привести к потере кросс-платформенности.
+
+Доступные таймеры:
+- AVR ATmega1280, ATmega2560: _TIMER1, _TIMER3,_TIMER4, _TIMER5; TIMER_DEFAULT = _TIMER5
+- AVR AT90USB646, AT90USB1286, ATmega128, ATmega1281, ATmega1284, ATmega1284P, AVR_ATmega2561:  _TIMER1, _TIMER3; TIMER_DEFAULT = _TIMER3
+- AVR ATmega32U4: _TIMER1; TIMER_DEFAULT = _TIMER1
+- AVR другие чипы: _TIMER1; TIMER_DEFAULT = _TIMER1
+
+- PIC32 (ChipKIT): _TIMER1, _TIMER2, _TIMER3, _TIMER4, _TIMER5, _TIMER2_32BIT, _TIMER4_32BIT; TIMER_DEFAULT = _TIMER4_32BIT
+- SAM (Arduino Due): _TIMER1/_TIMER1_32BIT, _TIMER2/_TIMER2_32BIT, _TIMER3/_TIMER3_32BIT, _TIMER4/_TIMER4_32BIT, _TIMER5/_TIMER5_32BIT, _TIMER6/_TIMER6_32BIT, _TIMER7/_TIMER7_32BIT, _TIMER8/_TIMER8_32BIT, _TIMER9/_TIMER9_32BIT (все таймеры 32-битные, _TIMERX_32BIT == _TIMERX); TIMER_DEFAULT = _TIMER3/_TIMER3_32BIT;
+
+
 ## Минимальные частоты и разрядность таймеров
 
 Варианты вызовов timer_init_ISR_2Hz (2Гц, период 500мс) и timer_init_ISR_1Hz (1Гц, период 1с) на PIC32MX 80МГц будут работать только с 32-битными таймерами (_TIMER2_32BIT и _TIMER4_32BIT; TIMER_DEFAULT - по умолчанию = _TIMER4_32BIT), т.к. при 16-битных режимах таймеров PIC32MX 80МГц комбинация "делитель частоты" (prescaler - максимальный вариант 1/256) + "поправка периода" (adjustment - максимальный вариант 2^16=65536-1) дают минимальную частоту 5Гц (период - 200мс):  
@@ -277,13 +300,16 @@ void timer_init_ISR_1Hz(int timer);
 
 поэтому при использовании таймера _TIMER2_32BIT, обычные таймеры _TIMER2 и _TIMER3 будут заняты, при использовании _TIMER4_32BIT - заняты будут _TIMER4 и _TIMER5.
 
-На Ардуине можно получить частоту 1Гц стандартными делителями на 16-битном таймере.
+На AVR/Arduino можно получить частоту 1Гц стандартными делителями на 16-битном таймере.
+
+На SAM/Arduino Due все таймеры 32-битные.
 
 Тип данных для параметра adjustment - unsigned int.
 - На PIC32 разрядность int - 32 бит, этого хватит и для 16-тибитного режима таймера (если не закладывать значение более 2^16=65536-1) и для 32-битного (пойдет любое значение до 2^32=4294967296-1).
+- На SAM разрядность int - 32 бит, все таймеры 32-битные.
 - На AVR разрядность int - 16 бит, это опять же, как раз достаточно для 16-битных таймеров.
 
-Таким образом, хотя разрядность параметра adjustment с типом int будет разной на разных платформах, в обоих случаях значение будет соответствовать аппаратным свойствам таймеров.
+Таким образом, хотя разрядность параметра adjustment с типом int будет разной на разных платформах, во всех случаях значение будет соответствовать аппаратным свойствам таймеров.
 
 ## Максимальные частоты
 
@@ -346,6 +372,12 @@ cкетч: Examples/timer-api/timer-api-test-max-freq
 ~~~cpp
 #include"timer-api.h"
 
+На разных платформах доступны разные варианты значений делителя частоты prescaler. В случае указания некорректного значения делителя prescaler поведения системы  не определено.
+
+- AVR (Arduino): TIMER_PRESCALER_1_1, TIMER_PRESCALER_1_8, TIMER_PRESCALER_1_64, TIMER_PRESCALER_1_256, TIMER_PRESCALER_1_1024
+- SAM (Arduino Due): TIMER_PRESCALER_1_2, TIMER_PRESCALER_1_8, TIMER_PRESCALER_1_32, TIMER_PRESCALER_1_128
+- PIC32 (ChiptKIT): PRESCALER_1, PRESCALER_2, PRESCALER_4, PRESCALER_8, PRESCALER_16, PRESCALER_32, PRESCALER_64, PRESCALER_256
+
 void setup() {
     Serial.begin(9600);
 
@@ -359,7 +391,7 @@ void setup() {
     
     // Arduino 16МГц
     // Настроим и запустим таймер с периодом 20 миллисекунд (50 срабатываний в секунду == 50Гц):
-    // prescaler=1:8, adjustment=40000:
+    // prescaler=1:8, adjustment=40000-1:
     // 16000000/8/50=40000 (50Hz - срабатывает 50 раз в секунду, т.е. каждые 20мс),
     // минус 1, т.к. считаем от нуля.
     // Обработчик прерывания от таймера - функция timer_handle_interrupts 
@@ -368,12 +400,21 @@ void setup() {
     
     // ChipKIT PIC32MX 80МГц
     // Настроим и запустим таймер с периодом 20 миллисекунд (50 срабатываний в секунду == 50Гц):
-    // prescaler=1:64, adjustment=25000:
+    // prescaler=1:64, adjustment=25000-1:
     // 80000000/64/25000=50 (срабатывает 50 раз в секунду, т.е. каждые 20мс),
     // минус 1, т.к. считаем от нуля.
     // Обработчик прерывания от таймера - функция timer_handle_interrupts 
     // (с заданными настройками будет вызываться каждые 20мс).
     //timer_init_ISR(TIMER_DEFAULT, TIMER_PRESCALER_1_64, 25000-1);
+    
+    // Arduino Due SAM 84МГц
+    // Настроим и запустим таймер с периодом 20 миллисекунд (50 срабатываний в секунду == 50Гц):
+    // prescaler=1:128, adjustment=13125-1:
+    // 80000000/128/13125=50 (срабатывает 50 раз в секунду, т.е. каждые 20мс),
+    // минус 1, т.к. считаем от нуля.
+    // Обработчик прерывания от таймера - функция timer_handle_interrupts 
+    // (с заданными настройками будет вызываться каждые 20мс).
+    //timer_init_ISR(TIMER_DEFAULT, TIMER_PRESCALER_1_128, 13125-1);
     
     pinMode(13, OUTPUT);
 }
