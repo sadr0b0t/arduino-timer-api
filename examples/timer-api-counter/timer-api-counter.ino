@@ -2,6 +2,7 @@
 
 void setup() {
     Serial.begin(9600);
+    while(!Serial);
 
     // freq=10Hz, period=100ms
     // частота=10Гц, период=100мс
@@ -29,10 +30,6 @@ void loop() {
 void timer_handle_interrupts(int timer) {
     static unsigned long prev_time = 0;
 
-    unsigned long _time = micros();
-    unsigned long _period = _time - prev_time;
-    prev_time = _time;
-
     // additional period multiplicator
     // дополнильный множитель периода
     static int count = 11;
@@ -46,6 +43,10 @@ void timer_handle_interrupts(int timer) {
     // то сообщение будет печататься каждые 100мс*12=1200мс
     // (5 раз за 6 секунд)
     if(count == 0) {
+        unsigned long _time = micros();
+        unsigned long _period = _time - prev_time;
+        prev_time = _time;
+    
         Serial.print("goodbye from timer: ");
         Serial.println(_period, DEC);
 
