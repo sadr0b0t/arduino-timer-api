@@ -6,6 +6,11 @@ Supported platforms:
 - Arduino Due (SAM 84MHz, 32 bit)
 - ChipKIT (PIC32MX 80MHz, 32 bit; PIC32MZ 200MHz - partially, wip)
 
+# Введение и руководство
+
+Многозадачная Ардуина: таймеры без боли
+https://habrahabr.ru/post/337430/
+
 # Установка
 
 ~~~bash
