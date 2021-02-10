@@ -332,31 +332,40 @@ void timer_init_ISR(int timer, int prescaler, unsigned int adjustment) {
  */
 void timer_stop_ISR(int timer) {
 #if defined (_useTimer1)
-    TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
+	if (timer == _TIMER1)
+		TC_Stop(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1);
 #endif
 #if defined (_useTimer2)
-    TC_Stop(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2);
+    if (timer == _TIMER2)
+		TC_Stop(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2);
 #endif
 #if defined (_useTimer3)
-    TC_Stop(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3);
+    if (timer == _TIMER3)
+		TC_Stop(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3);
 #endif
 #if defined (_useTimer4)
-    TC_Stop(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4);
+    if (timer == _TIMER4)
+		TC_Stop(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4);
 #endif
 #if defined (_useTimer5)
-    TC_Stop(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5);
+    if (timer == _TIMER5)
+		TC_Stop(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5);
 #endif
 #if defined (_useTimer6)
-    TC_Stop(TC_FOR_TIMER6, CHANNEL_FOR_TIMER6);
+    if (timer == _TIMER6)
+		TC_Stop(TC_FOR_TIMER6, CHANNEL_FOR_TIMER6);
 #endif
 #if defined (_useTimer7)
-    TC_Stop(TC_FOR_TIMER7, CHANNEL_FOR_TIMER7);
+    if (timer == _TIMER7)
+		TC_Stop(TC_FOR_TIMER7, CHANNEL_FOR_TIMER7);
 #endif
 #if defined (_useTimer8)
-    TC_Stop(TC_FOR_TIMER8, CHANNEL_FOR_TIMER8);
+    if (timer == _TIMER8)
+		TC_Stop(TC_FOR_TIMER8, CHANNEL_FOR_TIMER8);
 #endif
 #if defined (_useTimer9)
-    TC_Stop(TC_FOR_TIMER9, CHANNEL_FOR_TIMER9);
+    if (timer == _TIMER9)
+		TC_Stop(TC_FOR_TIMER9, CHANNEL_FOR_TIMER9);
 #endif
 }
 

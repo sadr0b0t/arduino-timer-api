@@ -94,6 +94,17 @@ const int _TIMER3 = _timer3;
 
 const int TIMER_DEFAULT = _timer3; //TIMER3;
 
+#elif defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__ )
+#define _useTimer1
+#define _useTimer2
+#define TIMER_API_ARDUINO_UNO
+typedef enum { _timer2, _timer1, _Nbr_16timers } timer16_Sequence_t;
+
+const int _TIMER1 = _timer1;
+const int _TIMER2 = _timer2;
+
+const int TIMER_DEFAULT = _timer2; //TIMER2;
+
 #else  // everything else
 #define _useTimer1
 typedef enum { _timer1, _Nbr_16timers } timer16_Sequence_t;
@@ -122,6 +133,12 @@ SIGNAL (TIMER1_COMPA_vect) {
 }
 #endif
 
+#if defined(_useTimer2) && defined(TIMER_API_ARDUINO_UNO)
+SIGNAL (TIMER0_COMPA_vect) {
+    timer_handle_interrupts(_timer2);
+}
+#endif
+
 #if defined(_useTimer3)
 SIGNAL (TIMER3_COMPA_vect) {
     timer_handle_interrupts(_timer3);
@@ -145,6 +162,11 @@ SIGNAL (TIMER5_COMPA_vect) {
 #if defined(_useTimer1)
 void Timer1Service() {
     timer_handle_interrupts(_timer1);
+}
+#endif
+#if defined(_useTimer2)
+void Timer2Service() {
+    timer_handle_interrupts(_timer2);
 }
 #endif
 #if defined(_useTimer3)
@@ -228,6 +250,43 @@ void timer_init_ISR(int timer, int prescaler, unsigned int adjustment) {
         timerAttach(TIMER1OUTCOMPAREA_INT, Timer1Service);
 #endif
     }
+#endif
+
+#if defined (_useTimer2)
+    if(timer == _timer2) {
+		unsigned char prescalerBits = 0;
+        if(prescaler == TIMER_PRESCALER_1_1) {
+            prescalerBits = _BV(CS00);
+        } else if(prescaler == TIMER_PRESCALER_1_8) {
+            prescalerBits = _BV(CS01);
+        } else if(prescaler == TIMER_PRESCALER_1_64) {
+            prescalerBits = _BV(CS01) | _BV(CS00);
+        } else if(prescaler == TIMER_PRESCALER_1_256) {
+            prescalerBits = _BV(CS02);
+        } else if(prescaler == TIMER_PRESCALER_1_1024) {
+            prescalerBits = _BV(CS02) | _BV(CS00);
+        } else {
+            // let it be no prescaler by default:
+            prescalerBits = _BV(CS00);
+        }
+		
+		TCCR0A = 0; // we want the normal counter mode
+		TCCR0B = 0; // reset b register
+		TCCR0B |= _BV(WGM12);   // CTC mode
+		TCCR0B |= prescalerBits;//configure the prescaler
+		OCR0A = adjustment;
+		TCNT0 = 0; // clear timer count
+		//clear pending interrupts
+		TIFR0 |= _BV(OCF0A);
+		//enable interrupt in mask
+		TIMSK0 |= _BV(OCIE0A);
+#if defined(WIRING)
+        timerAttach(TIMER0OUTCOMPAREA_INT, Timer2Service);
+#endif
+		
+		
+		
+	}
 #endif
 
 #if defined (_useTimer3)
